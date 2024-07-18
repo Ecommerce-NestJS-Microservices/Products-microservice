@@ -73,7 +73,13 @@ export class ProductsService extends PrismaClient implements OnModuleInit {
     })
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} product`;
+  async remove(id: number) {
+
+    await this.findOne(id);
+
+    return this.product.delete({
+      where: { id }
+    })
+
   }
 }
