@@ -4,6 +4,7 @@ import { UpdateProductDto } from './dto/update-product.dto';
 import { PrismaClient } from '@prisma/client';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { resourceLimits } from 'worker_threads';
+import { Product } from './entities/product.entity';
 
 @Injectable()
 export class ProductsService extends PrismaClient implements OnModuleInit {
@@ -36,14 +37,15 @@ export class ProductsService extends PrismaClient implements OnModuleInit {
 
     const { page, limit } = PaginationDto;
 
-    const totalPages = await this.product.count();
+    const totalPages = await this.product.count({where: {available:true}});
 
     const lastPage = Math.ceil(totalPages / limit);
 
     return {
       data: await this.product.findMany({
         skip: (page - 1) * limit,
-        take: limit
+        take: limit,
+        where: { available: true }
       }),
       meta: {
         total: totalPages,
@@ -55,7 +57,7 @@ export class ProductsService extends PrismaClient implements OnModuleInit {
 
   async findOne(id: number) {
     const product = await this.product.findFirst({
-      where: { id }
+      where: { id : id, available: true  }
     });
     if (!product) {
       throw new NotFoundException(`Product with id #${id} not found`);
@@ -77,9 +79,16 @@ export class ProductsService extends PrismaClient implements OnModuleInit {
 
     await this.findOne(id);
 
-    return this.product.delete({
-      where: { id }
-    })
+    // return this.product.delete({
+    //   where: { id }
+    // })
 
+    const product = await this.product.update({
+      where: { id },
+      data: {
+        available: false
+      }
+    })
+    return product;
   }
 }
