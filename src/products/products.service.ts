@@ -3,8 +3,7 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { PrismaClient } from '@prisma/client';
 import { PaginationDto } from '../common/dto/pagination.dto';
-import { resourceLimits } from 'worker_threads';
-import { Product } from './entities/product.entity';
+
 
 @Injectable()
 export class ProductsService extends PrismaClient implements OnModuleInit {
@@ -37,7 +36,7 @@ export class ProductsService extends PrismaClient implements OnModuleInit {
 
     const { page, limit } = PaginationDto;
 
-    const totalPages = await this.product.count({where: {available:true}});
+    const totalPages = await this.product.count({ where: { available: true } });
 
     const lastPage = Math.ceil(totalPages / limit);
 
@@ -57,7 +56,7 @@ export class ProductsService extends PrismaClient implements OnModuleInit {
 
   async findOne(id: number) {
     const product = await this.product.findFirst({
-      where: { id : id, available: true  }
+      where: { id: id, available: true }
     });
     if (!product) {
       throw new NotFoundException(`Product with id #${id} not found`);
@@ -67,11 +66,13 @@ export class ProductsService extends PrismaClient implements OnModuleInit {
 
   async update(id: number, updateProductDto: UpdateProductDto) {
 
+    const { id: __, ...data } = updateProductDto;
+
     await this.findOne(id);
 
     return this.product.update({
       where: { id },
-      data: updateProductDto,
+      data: data,
     })
   }
 
