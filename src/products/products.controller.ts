@@ -23,6 +23,7 @@ export class ProductsController {
   findAll(@Payload() paginationDto: PaginationDto) {
 
     return this.productsService.findAll(paginationDto);
+
   }
 
   // @Get(':id')

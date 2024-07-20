@@ -17,10 +17,6 @@ const logger = new Logger('Main');
 
       }
     }
-  
-  
-  
-  
   );
 
   app.useGlobalPipes(
