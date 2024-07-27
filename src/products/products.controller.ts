@@ -45,12 +45,19 @@ export class ProductsController {
     // @Body() updateProductDto: UpdateProductDto,
     @Payload() updateProductDto: UpdateProductDto
   ) {
-    return this.productsService.update(updateProductDto.id, updateProductDto);
+    return this.productsService.update(
+      updateProductDto.id,
+      updateProductDto);
   }
 
   //@Delete(':id')
   @MessagePattern({ cmd: 'delete_product' })
   remove(@Payload('id', ParseIntPipe) id: number) {
     return this.productsService.remove(id);
+  }
+
+  @MessagePattern({ cmd: 'validate_products' })
+  validateProduct(@Payload() ids: number[]) {
+    return this.productsService.validateProducts(ids);
   }
 }

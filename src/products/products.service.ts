@@ -1,4 +1,4 @@
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { HttpStatus, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { RpcException } from '@nestjs/microservices';
@@ -38,9 +38,9 @@ export class ProductsService extends PrismaClient implements OnModuleInit {
 
     const { page, limit } = PaginationDto;
 
-    const totalPages = await this.product.count({ where: { available: true } });
+    const totalProducts = await this.product.count({ where: { available: true } });
 
-    const lastPage = Math.ceil(totalPages / limit);
+    const lastPage = Math.ceil(totalProducts / limit);
 
     return {
       data: await this.product.findMany({
@@ -49,7 +49,7 @@ export class ProductsService extends PrismaClient implements OnModuleInit {
         where: { available: true }
       }),
       meta: {
-        total: totalPages,
+        total: totalProducts,
         page: page,
         lastPage: lastPage
       }
@@ -61,7 +61,10 @@ export class ProductsService extends PrismaClient implements OnModuleInit {
       where: { id: id, available: true }
     });
     if (!product) {
-      throw new RpcException(`Product with id #${id} not found`);
+      throw new RpcException({
+        message: `Product with id #${id} not found`,
+        status: HttpStatus.BAD_REQUEST
+      });
     }
     return product;
   }
@@ -94,4 +97,25 @@ export class ProductsService extends PrismaClient implements OnModuleInit {
     })
     return product;
   }
+
+  async validateProducts(ids: number[]) {
+    ids = Array.from(new Set(ids));
+
+    const products = await this.product.findMany({
+      where: {
+        id: {
+          in: ids
+        }
+      }
+    });
+  
+    if (products.length !== ids.length) {
+      throw new RpcException({
+        message: 'Some products were not found',
+        status: HttpStatus.BAD_REQUEST,
+      });
+    }
+    return products;
+  }
+
 }
