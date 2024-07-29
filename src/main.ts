@@ -16,8 +16,8 @@ async function bootstrap() {
       // transport: Transport.TCP,
       transport: Transport.NATS,
       options: {
-        server: envs.natsServers // this is  already an array
-        // server: ['nats://localhost:4222']
+        servers: envs.natsServers // this is  already an array
+        // servers: ['nats://localhost:4222']
         // port: envs.port,
 
       }
