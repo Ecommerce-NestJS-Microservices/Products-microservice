@@ -6,7 +6,7 @@ import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 
 async function bootstrap() {
 
-  const logger = new Logger('Main');
+  const logger = new Logger('Products-Main');
 
   console.log(envs.natsServers);
 
